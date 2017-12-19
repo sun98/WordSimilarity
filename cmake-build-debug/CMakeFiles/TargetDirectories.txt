@@ -1,0 +1,3 @@
+/home/suibin/WordSimilarity/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/suibin/WordSimilarity/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/suibin/WordSimilarity/cmake-build-debug/CMakeFiles/WordSimilarity.dir

@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/suibin/WordSimilarity/similarity.cpp
+iostream
+-
+fstream
+-
+string
+-
+algorithm
+-
+vector
+-
+map
+-
+cctype
+-
+similarity.h
+/home/suibin/WordSimilarity/similarity.h
+utility.h
+/home/suibin/WordSimilarity/utility.h
+
+/home/suibin/WordSimilarity/similarity.h
+string
+-
+map
+-
+vector
+-
+
+/home/suibin/WordSimilarity/utility.h
+string
+-
+sstream
+-
+cstdarg
+-
+

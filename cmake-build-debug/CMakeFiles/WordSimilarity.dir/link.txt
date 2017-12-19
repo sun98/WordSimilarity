@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/WordSimilarity.dir/similarity.cpp.o  -o WordSimilarity 
