@@ -311,7 +311,7 @@ float WordSimilarity::calcGlossarySim(GlossaryElement *w1, GlossaryElement *w2) 
     return sim;
 }
 
-// 计算第一基本义原，仍然使用alpha/(alpha+dist(w1,w2))的方法
+// 1.计算第一基本义原，仍然使用alpha/(alpha+dist(w1,w2))的方法
 float WordSimilarity::calcSememeSimFirst(GlossaryElement *w1, GlossaryElement *w2) {
     std::string word1, word2;
     word1 = w1->s_first;
@@ -331,6 +331,7 @@ float WordSimilarity::calcSememeSimFirst(GlossaryElement *w1, GlossaryElement *w
 //    return calcSememeSim(w1->s_first, w2->s_first);
 }
 
+// 2.其他义原相似度
 float WordSimilarity::calcSememeSimOther(GlossaryElement *w1, GlossaryElement *w2) {
     if (w1->s_other.empty() && w2->s_other.empty())
         return 1.0;
@@ -346,6 +347,7 @@ float WordSimilarity::calcSememeSimOther(GlossaryElement *w1, GlossaryElement *w
         for (size_t j = 0; j < w2->s_other.size(); ++j) {
             temp = 0.0;
             if (w1->s_other[i][0] != '(' && w2->s_other[j][0] != '(') {
+//                考虑距离的算法
                 temp = calcSememeSim(w1->s_other[i], w2->s_other[j]);
             } else if (w1->s_other[i][0] == '(' && w2->s_other[j][0] == '(') {
                 if (w1->s_other[i] == w2->s_other[j])
@@ -372,6 +374,7 @@ float WordSimilarity::calcSememeSimOther(GlossaryElement *w1, GlossaryElement *w
     return sum / std::max(w1->s_other.size(), w2->s_other.size());
 }
 
+// 3.计算关系义原相似度
 float WordSimilarity::calcSememeSimRelation(GlossaryElement *w1, GlossaryElement *w2) {
     if (w1->s_relation.empty() && w2->s_relation.empty())
         return 1.0;
@@ -413,6 +416,7 @@ float WordSimilarity::calcSememeSimRelation(GlossaryElement *w1, GlossaryElement
     return sum / std::max(w1->s_relation.size(), w2->s_relation.size());
 }
 
+// 4.计算符号义原相似度
 float WordSimilarity::calcSememeSimSymbol(GlossaryElement *w1, GlossaryElement *w2) {
     if (w1->s_symbol.empty() && w2->s_symbol.empty())
         return 1.;
