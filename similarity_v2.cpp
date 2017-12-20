@@ -12,7 +12,8 @@ namespace {
     //
     // 下面几个经验常量来自论文：《基于《知网》的词汇语义相似度计算》
     //
-    const float ALFA = 1.6;
+    const float ALPHA = 1.6;
+    const float EPSILON = 2.0;
     const float DELTA = 0.2;
     const float GAMA = 0.2;
     const float BETA[4] = {0.5, 0.2, 0.17, 0.13};
@@ -400,11 +401,32 @@ float WordSimilarity::calcSememeSim(const std::string &w1, const std::string &w2
     if (w1 == w2)
         return 1.0;
 
-    int d = calcSememeDistance(w1, w2);
-    if (d >= 0)
-        return ALFA / (ALFA + d);
-    else
+    int dist = calcSememeDistance(w1, w2);
+    int depth1 = calcSememeDepth(w1), depth2 = calcSememeDepth(w2);
+    if (dist >= 0 && depth1 >= 0 && depth2 >= 0) {
+        int maxDepth = std::max(depth1, depth2), minDepth = std::min(depth1, depth2);
+        float lambda = maxDepth / (maxDepth + minDepth);
+        float temp = ALPHA * minDepth + EPSILON;
+        return temp / (temp + lambda * (dist ^ 2));
+    } else
         return -1.0;
+}
+
+// 计算义原在树结构中的深度
+int WordSimilarity::calcSememeDepth(const std::string &w) {
+    SememeElement *s = getSememeByZh(w);
+    if (!s)
+        return -1;
+    int depth = 0, id = s->id, fatherId = s->father;
+    while (id != fatherId) {
+        id = fatherId;
+        SememeElement *fatherNode = getSememeByID(fatherId);
+        if (fatherNode) {
+            fatherId = fatherNode->father;
+        }
+        depth++;
+    }
+    return depth;
 }
 
 // 计算两个义原在树结构中的距离

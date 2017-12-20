@@ -9,6 +9,15 @@ cygwin: $(src)
 sim : similarity.cpp
 	g++ similarity.cpp -D _TEST_SIMILARITY -o ./sim
 
+simv2: similarity_v2.cpp
+	g++ similarity_v2.cpp -D _TEST_SIMILARITY -o ./sim2
+
 test : sim
 	sh test/sim_test_1.sh; \
 	sh test/sim_test_2.sh
+
+origin : sim
+	sh test/sim_test_miller_origin.sh
+
+v2: simv2
+	sh test/sim_test_miller_v2.sh
