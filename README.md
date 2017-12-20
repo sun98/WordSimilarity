@@ -2,6 +2,7 @@
 Optimization of Chinese word similarity calculation
 
 - 编译：
-<p>make sim</p>
+`make sim`
+
 - 运行：
-<p>./sim 词语1 词语2</p>
+`./sim 词语1 词语2`
