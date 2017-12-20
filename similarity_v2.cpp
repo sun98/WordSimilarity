@@ -62,25 +62,67 @@ float WordSimilarity::calc(const std::string &w1, const std::string &w2) {
     if (!sw1 || !sw2 || !sw1->size() || !sw2->size())
         return -2.0;
 
+
 //    for (int k = 0; k < sw1->size(); ++k) {
 //        sw1->at(k)->dump();
 //    }
-
+//
 //    for (int k = 0; k < sw2->size(); ++k) {
 //        sw2->at(k)->dump();
 //    }
 
-//    取概念相似度的最大值
-    float max = 0;
-    float tmp = 0;
-    for (size_t i = 0; i < sw1->size(); i++) {
-        for (size_t j = 0; j < sw2->size(); j++) {
-            tmp = calcGlossarySim(sw1->at(i), sw2->at(j));
-            max = std::max(max, tmp);
+//    取概念相似度的最大值->取第一基本义原相似度最大的概念为标准
+//
+    int pairSize = 2 * std::min(sw1->size(), sw2->size());
+//    printf("size:%d, size1:%d, size2:%d\n", pairSize, sw1->size(), sw2->size());
+    int pairCurSize = 0;
+    int *maxPairs = new int[pairSize];
+    bool flag = true;
+    int maxI, maxJ;
+    float maxFirst = -1, tmp;
+    for (int l = 0; l < pairSize / 2; ++l) {
+        maxFirst = -1;
+        for (size_t i = 0; i < sw1->size(); ++i) {
+            for (size_t j = 0; j < sw2->size(); ++j) {
+                flag = true;
+                for (int k = 0; k < pairCurSize; ++k) {
+                    if (k % 2 == 0 && maxPairs[k] == i ||
+                        k % 2 == 1 && maxPairs[k] == j)
+                        flag = false;
+                }
+//                printf("cursize:%d, i:%d, j:%d, flag:%d\n", pairCurSize, i, j, flag);
+                if (flag) {
+                    tmp = calcSememeSimFirst(sw1->at(i), sw2->at(j));
+                    if (maxFirst < tmp) {
+                        maxFirst = tmp;
+                        maxI = i;
+                        maxJ = j;
+                    }
+                }
+            }
         }
+        maxPairs[pairCurSize++] = maxI;
+        maxPairs[pairCurSize++] = maxJ;
+//        printf("pair:%d, %d\n", maxI, maxJ);
+    }
+    float upper = 0, below = 0;
+    for (int m = 0; m < pairCurSize / 2; ++m) {
+        int sememeNum = 0;
+        float glossarySim = 0;
+        if (sw1->at(maxPairs[2 * m])->s_first != "") sememeNum++;
+        if (!sw1->at(maxPairs[2 * m])->s_other.empty()) sememeNum++;
+        if (!sw1->at(maxPairs[2 * m])->s_relation.empty()) sememeNum++;
+        if (!sw1->at(maxPairs[2 * m])->s_symbol.empty()) sememeNum++;
+        if (sw2->at(maxPairs[2 * m + 1])->s_first != "") sememeNum++;
+        if (!sw2->at(maxPairs[2 * m + 1])->s_other.empty()) sememeNum++;
+        if (!sw2->at(maxPairs[2 * m + 1])->s_relation.empty()) sememeNum++;
+        if (!sw2->at(maxPairs[2 * m + 1])->s_symbol.empty()) sememeNum++;
+        glossarySim = calcGlossarySim(sw1->at(maxPairs[2 * m]), sw2->at(maxPairs[2 * m + 1]));
+        upper += sememeNum * glossarySim;
+        below += sememeNum;
     }
 
-    return max;
+    return upper / below;
 }
 
 
@@ -246,7 +288,7 @@ WordSimilarity::GlossaryElements *WordSimilarity::getGlossary(const std::string 
     return NULL;
 }
 
-
+// 计算概念相似度
 float WordSimilarity::calcGlossarySim(GlossaryElement *w1, GlossaryElement *w2) {
     if (!w1 || !w2) return 0.0;
 
@@ -257,17 +299,36 @@ float WordSimilarity::calcGlossarySim(GlossaryElement *w1, GlossaryElement *w2) 
     float sim3 = calcSememeSimRelation(w1, w2);
     float sim4 = calcSememeSimSymbol(w1, w2);
 
+//    float sim = BETA[0] * sim1 +
+//                BETA[1] * sim1 * sim2 +
+//                BETA[2] * sim1 * sim2 * sim3 +
+//                BETA[3] * sim1 * sim2 * sim3 * sim4;
     float sim = BETA[0] * sim1 +
-                BETA[1] * sim1 * sim2 +
-                BETA[2] * sim1 * sim2 * sim3 +
-                BETA[3] * sim1 * sim2 * sim3 * sim4;
+                BETA[1] * sim2 +
+                BETA[2] * sim3 +
+                BETA[3] * sim4;
 
     return sim;
 }
 
-
+// 计算第一基本义原，仍然使用alpha/(alpha+dist(w1,w2))的方法
 float WordSimilarity::calcSememeSimFirst(GlossaryElement *w1, GlossaryElement *w2) {
-    return calcSememeSim(w1->s_first, w2->s_first);
+    std::string word1, word2;
+    word1 = w1->s_first;
+    word2 = w2->s_first;
+    if (word1.empty() && word2.empty())
+        return 1.0;
+    if (word1.empty() || word2.empty())
+        return DELTA;
+    if (word1 == word2)
+        return 1.0;
+
+    int d = calcSememeDistance(word1, word2);
+    if (d >= 0)
+        return ALPHA / (ALPHA + d);
+    else
+        return -1.0;
+//    return calcSememeSim(w1->s_first, w2->s_first);
 }
 
 float WordSimilarity::calcSememeSimOther(GlossaryElement *w1, GlossaryElement *w2) {
@@ -392,15 +453,8 @@ float WordSimilarity::calcSememeSimSymbol(GlossaryElement *w1, GlossaryElement *
     return sum / std::max(w1->s_symbol.size(), w2->s_symbol.size());
 }
 
-// 计算两个【第一】基本义原之间的相似度
+// 计算两个义原之间的相似度(除第一基本义原外的)
 float WordSimilarity::calcSememeSim(const std::string &w1, const std::string &w2) {
-    if (w1.empty() && w2.empty())
-        return 1.0;
-    if (w1.empty() || w2.empty())
-        return DELTA;
-    if (w1 == w2)
-        return 1.0;
-
     int dist = calcSememeDistance(w1, w2);
     int depth1 = calcSememeDepth(w1), depth2 = calcSememeDepth(w2);
     if (dist >= 0 && depth1 >= 0 && depth2 >= 0) {
@@ -495,7 +549,7 @@ int main(int argc, const char* argv[])
         return 1;
     }
 
-    printf("[sim] %s - %s : %f\n", argv[1], argv[2],
+    printf("%s - %s : %f\n", argv[1], argv[2],
         WordSimilarity::instance()->calc(argv[1], argv[2]));
 }
 
