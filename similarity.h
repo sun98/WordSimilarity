@@ -23,6 +23,8 @@ public:
     //
     static WordSimilarity *instance();
 
+
+
     //
     // 初始化义原和词汇表
     //
@@ -42,6 +44,7 @@ public:
         std::string sememe_en;   // 英文义原
         std::string sememe_zh;   // 中文义原
         int father;              // 父义原编号
+        int num_of_offspring;    //子孙和
     };
 
     typedef std::map<int, SememeElement *> SememeTable;
@@ -79,17 +82,23 @@ protected:
     // 加载词汇表
     //
     bool loadGlossary(const char *filename);
+    //
+    //录入义原树子孙信息
+    bool loadSememeOffspring();
+
 
     //
     // getSememeByID - 根据编号获取义原
     // getSememeByZh - 根据汉词获取义原
     // getGlossary   - 获取词汇表中的词
+    //updateNumofOffspring
     //
     SememeElement *getSememeByID(int id);
 
     SememeElement *getSememeByZh(const std::string &word);
 
     GlossaryElements *getGlossary(const std::string &word);
+    bool updateNumofOffspring(const int id);
 
     //
     // calcGlossarySim    - 计算词汇表中两个词的相似度
@@ -104,6 +113,7 @@ protected:
     int calcSememeDistance(const std::string &w1, const std::string &w2);
 
     int calcSememeDepth(const std::string &w);
+    int  getCommom(int seme_id1,int seme_id2 );
 
     //
     // calcSememeSimFirst    - 计算第一基本义原之间的相似度
