@@ -98,14 +98,13 @@ protected:
     SememeElement *getSememeByZh(const std::string &word);
 
     GlossaryElements *getGlossary(const std::string &word);
-<<<<<<< HEAD
+
     bool updateNumofOffspring(SememeTable::iterator it);
 
     int  locateSememe(SememeElement *sememe1, SememeElement *sememe2);
-=======
 
-    bool updateNumofOffspring(const int id);
->>>>>>> c1ee167bce28f89a0656c50e0e9c6d964c4dfb5e
+
+  
 
     //
     // calcGlossarySim    - 计算词汇表中两个词的相似度
