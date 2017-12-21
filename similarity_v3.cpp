@@ -201,6 +201,7 @@ void WordSimilarity::GlossaryElement::dump() {
 
 // 加载义原表
 bool WordSimilarity::loadSememeTable(const char *filename) {
+<<<<<<< HEAD
         std::ifstream in;
         in.open(filename, std::ios::in);
         if (!in.good()) return false;
@@ -216,10 +217,27 @@ bool WordSimilarity::loadSememeTable(const char *filename) {
                                 sememeindex_zn_[ele->sememe_zh] = ele;
                         }
                 }
+=======
+    std::ifstream in;
+    in.open(filename, std::ios::in);
+    if (!in.good())return false;
+
+    std::string line;
+    while (!in.eof()) {
+        std::getline(in, line);
+        if (!line.empty()) {
+            SememeElement *ele = new SememeElement;
+            ele->num_of_offspring = 0;
+            if (ele->parse(line)) {
+                sememetable_[ele->id] = ele;
+                sememeindex_zn_[ele->sememe_zh] = ele;
+            }
+>>>>>>> c1ee167bce28f89a0656c50e0e9c6d964c4dfb5e
         }
         in.close();
         return true;
 }
+<<<<<<< HEAD
 bool WordSimilarity::loadSememeOffspring(){
         SememeTable::iterator it;
 
@@ -239,7 +257,23 @@ bool WordSimilarity::updateNumofOffspring(SememeTable::iterator it){
         }
 // std::cout << sememetable_[1]->id;
         return true;
+=======
 
+bool WordSimilarity::loadSememeOffspring() {
+    for (int i = 0; i <= 1617; i++)
+        updateNumofOffspring(i);
+}
+>>>>>>> c1ee167bce28f89a0656c50e0e9c6d964c4dfb5e
+
+bool WordSimilarity::updateNumofOffspring(int i) {
+    SememeElement *temp = sememetable_[i];
+    while (true) {
+        temp->num_of_offspring++;
+        if (temp->father == -1)
+            break;
+        else
+            temp = sememetable_[temp->father];
+    }
 }
 
 WordSimilarity::SememeElement *WordSimilarity::getSememeByID(int id) {
@@ -430,6 +464,7 @@ float WordSimilarity::calcSememeSimSymbol(GlossaryElement *w1, GlossaryElement *
 
 // 计算两个【第一】基本义原之间的相似度
 float WordSimilarity::calcSememeSim(const std::string &w1, const std::string &w2) {
+<<<<<<< HEAD
         if (w1.empty() && w2.empty())
                 return 1.0;
         if (w1.empty() || w2.empty())
@@ -487,6 +522,43 @@ int WordSimilarity::locateSememe(SememeElement *sememe1, SememeElement *sememe2)
         }
         if (father_sememe1 == father_sememe2) return father_sememe1;
         else return -1;
+=======
+    if (w1.empty() && w2.empty())
+        return 1.0;
+    if (w1.empty() || w2.empty())
+        return DELTA;
+    if (w1 == w2)
+        return 1.0;
+
+    int d = calcSememeDistance(w1, w2);
+    if (d >= 0) {
+        SememeElement *s1 = getSememeByZh(w1);
+        SememeElement *s2 = getSememeByZh(w2);
+        if (!s1 || !s2)
+            return -1;
+        else {
+            int father = getCommom(s1->id, s2->id);
+            return (2 * log(sememetable_[father]->num_of_offspring / 1618)
+                    / (log(s1->num_of_offspring / 1618) + log(s2->num_of_offspring / 1618)
+                    )
+            );
+        }
+    } else
+        return -1.0;
+}
+
+int WordSimilarity::getCommom(int seme_id1, int seme_id2) {
+    int current_father1 = seme_id1;
+    int current_father2 = seme_id2;
+
+    while (current_father1 != current_father2) {
+        if (current_father1 > current_father2)
+            current_father1 = sememetable_[current_father1]->father;
+        else
+            current_father2 = sememetable_[current_father2]->father;
+    }
+    return current_father1;
+>>>>>>> c1ee167bce28f89a0656c50e0e9c6d964c4dfb5e
 }
 
 // 计算两个义原在树结构中的距离
