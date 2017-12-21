@@ -98,7 +98,9 @@ protected:
     SememeElement *getSememeByZh(const std::string &word);
 
     GlossaryElements *getGlossary(const std::string &word);
-    bool updateNumofOffspring(const int id);
+    bool updateNumofOffspring(SememeTable::iterator it);
+
+    int  locateSememe(SememeElement *sememe1, SememeElement *sememe2);
 
     //
     // calcGlossarySim    - 计算词汇表中两个词的相似度
