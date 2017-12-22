@@ -16,7 +16,8 @@ namespace {
     const float EPSILON = 2.0;
     const float DELTA = 0.2;
     const float GAMA = 0.2;
-    const float BETA[4] = {0.5, 0.2, 0.17, 0.13};
+    const float BETA[4] = {0.25, 0.45, 0.17, 0.13};
+//    const float BETA[4] = {0.5, 0.2, 0.17, 0.13};
 
     void parseZhAndEn(const std::string &text, std::string *zh, std::string *en = NULL) {
         std::vector <std::string> words;
@@ -168,6 +169,7 @@ bool WordSimilarity::GlossaryElement::parse(const std::string &text) {
             if (std::isalpha(sememes[0][0])) {
                 parseZhAndEn(sememes[0], &this->s_first);
                 firstdone = true;
+                this->s_other.push_back(this->s_first);
             }
 
             for (size_t i = 0; i < sememes.size(); i++) {
@@ -176,8 +178,11 @@ bool WordSimilarity::GlossaryElement::parse(const std::string &text) {
 
                 char firstletter = sememes[i][0];
 
+                std::string temp;
+                parseZhAndEn(sememes[i], &temp);
+
                 if ('(' == firstletter) {
-                    this->s_other.push_back(sememes[i]);
+                    this->s_other.push_back(temp);
                     continue;
                 }
 
@@ -199,7 +204,7 @@ bool WordSimilarity::GlossaryElement::parse(const std::string &text) {
                     continue;
                 }
 
-                this->s_other.push_back(sememes[i]);
+                this->s_other.push_back(temp);
             }
         }
 
@@ -299,14 +304,11 @@ float WordSimilarity::calcGlossarySim(GlossaryElement *w1, GlossaryElement *w2) 
     float sim3 = calcSememeSimRelation(w1, w2);
     float sim4 = calcSememeSimSymbol(w1, w2);
 
-//    float sim = BETA[0] * sim1 +
-//                BETA[1] * sim1 * sim2 +
-//                BETA[2] * sim1 * sim2 * sim3 +
-//                BETA[3] * sim1 * sim2 * sim3 * sim4;
     float sim = BETA[0] * sim1 +
+                //                BETA[1] * sim1 * sim2 +
                 BETA[1] * sim2 +
-                BETA[2] * sim3 +
-                BETA[3] * sim4;
+                BETA[2] * sim1 * sim2 * sim3 +
+                BETA[3] * sim1 * sim2 * sim3 * sim4;
 
     return sim;
 }
@@ -333,8 +335,9 @@ float WordSimilarity::calcSememeSimFirst(GlossaryElement *w1, GlossaryElement *w
 
 // 2.其他义原相似度
 float WordSimilarity::calcSememeSimOther(GlossaryElement *w1, GlossaryElement *w2) {
-    if (w1->s_other.empty() && w2->s_other.empty())
+    if (w1->s_other.empty() && w2->s_other.empty()) {
         return 1.0;
+    }
 
     float sum = 0.;
     float maxTemp = 0.;
@@ -370,7 +373,7 @@ float WordSimilarity::calcSememeSimOther(GlossaryElement *w1, GlossaryElement *w
 
     if (w1->s_other.size() < w2->s_other.size())
         sum = sum + (w2->s_other.size() - w1->s_other.size()) * DELTA;
-
+//    printf("sum:%f, size:%d\n", sum, std::max(w1->s_other.size(), w2->s_other.size()));
     return sum / std::max(w1->s_other.size(), w2->s_other.size());
 }
 
@@ -463,7 +466,7 @@ float WordSimilarity::calcSememeSim(const std::string &w1, const std::string &w2
     int depth1 = calcSememeDepth(w1), depth2 = calcSememeDepth(w2);
     if (dist >= 0 && depth1 >= 0 && depth2 >= 0) {
         int maxDepth = std::max(depth1, depth2), minDepth = std::min(depth1, depth2);
-        float lambda = maxDepth / (maxDepth + minDepth);
+        float lambda = maxDepth * 1.0 / (maxDepth + minDepth);
         float temp = ALPHA * minDepth + EPSILON;
         return temp / (temp + lambda * (dist ^ 2));
     } else
@@ -491,8 +494,10 @@ int WordSimilarity::calcSememeDepth(const std::string &w) {
 int WordSimilarity::calcSememeDistance(const std::string &w1, const std::string &w2) {
     SememeElement *s1 = getSememeByZh(w1);
     SememeElement *s2 = getSememeByZh(w2);
-    if (!s1 || !s2)
+    if (!s1 || !s2) {
+        printf("!!!%s, %s\n", w1.c_str(), w2.c_str());
         return -1;
+    }
 
     std::vector<int> fatherpath;
 

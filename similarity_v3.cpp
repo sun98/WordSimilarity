@@ -16,7 +16,7 @@ namespace {
     const float ALFA = 1.6;
     const float DELTA = 0.2;
     const float GAMA = 0.2;
-    const float BETA[4] = {0.5, 0.2, 0.17, 0.13};
+    const float BETA[4] = {0.25, 0.45, 0.17, 0.13};
 
     void parseZhAndEn(const std::string &text, std::string *zh, std::string *en = NULL) {
         std::vector <std::string> words;
@@ -68,7 +68,7 @@ float WordSimilarity::calc(const std::string &w1, const std::string &w2) {
 //    for (int k = 0; k < sw1->size(); ++k) {
 //        sw1->at(k)->dump();
 //    }
-
+//
 //    for (int k = 0; k < sw2->size(); ++k) {
 //        sw2->at(k)->dump();
 //    }
@@ -138,6 +138,7 @@ bool WordSimilarity::GlossaryElement::parse(const std::string &text) {
             if (std::isalpha(sememes[0][0])) {
                 parseZhAndEn(sememes[0], &this->s_first);
                 firstdone = true;
+                this->s_other.push_back(this->s_first);
             }
 
             for (size_t i = 0; i < sememes.size(); i++) {
@@ -146,8 +147,11 @@ bool WordSimilarity::GlossaryElement::parse(const std::string &text) {
 
                 char firstletter = sememes[i][0];
 
+                std::string temp;
+                parseZhAndEn(sememes[i], &temp);
+
                 if ('(' == firstletter) {
-                    this->s_other.push_back(sememes[i]);
+                    this->s_other.push_back(temp);
                     continue;
                 }
 
@@ -169,7 +173,7 @@ bool WordSimilarity::GlossaryElement::parse(const std::string &text) {
                     continue;
                 }
 
-                this->s_other.push_back(sememes[i]);
+                this->s_other.push_back(temp);
             }
         }
 
@@ -313,6 +317,7 @@ float WordSimilarity::calcGlossarySim(GlossaryElement *w1, GlossaryElement *w2) 
                 BETA[1] * sim2 +
                 BETA[2] * sim1 * sim2 * sim3 +
                 BETA[3] * sim1 * sim2 * sim3 * sim4;
+//    printf("%f\n", sim2);
 
     return sim;
 }
