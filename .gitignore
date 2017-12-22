@@ -30,6 +30,9 @@
 *.exe
 *.out
 *.app
+sim
+sim2
+sim3
 
 # Clion
 cmake-build-debug/
