@@ -511,28 +511,7 @@ int WordSimilarity::locateSememe(SememeElement *sememe1, SememeElement *sememe2)
     }
     if (father_sememe1 == father_sememe2) return father_sememe1;
     else return -1;
-//    if (w1.empty() && w2.empty())
-//        return 1.0;
-//    if (w1.empty() || w2.empty())
-//        return DELTA;
-//    if (w1 == w2)
-//        return 1.0;
-//
-//    int d = calcSememeDistance(w1, w2);
-//    if (d >= 0) {
-//        SememeElement *s1 = getSememeByZh(w1);
-//        SememeElement *s2 = getSememeByZh(w2);
-//        if (!s1 || !s2)
-//            return -1;
-//        else {
-//            int father = getCommom(s1->id, s2->id);
-//            return (2 * log(sememetable_[father]->num_of_offspring / 1618)
-//                    / (log(s1->num_of_offspring / 1618) + log(s2->num_of_offspring / 1618)
-//                    )
-//            );
-//        }
-//    } else
-//        return -1.0;
+
 }
 
 // 计算两个义原在树结构中的距离
