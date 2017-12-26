@@ -8,6 +8,8 @@
 #include "similarity.h"
 #include "utility.h"
 
+#include "mathlib.h"
+
 namespace {
     //
     // 下面几个经验常量来自论文：《基于《知网》的词汇语义相似度计算》
@@ -541,25 +543,47 @@ int WordSimilarity::calcSememeDistance(const std::string &w1, const std::string 
     return 20;
 }
 
+float execCsv() {
+    std::ifstream ifs("./results/combined_zh.csv");
+//    std::ofstream ofs("./results/combined_zh_v2.csv");
+    std::string word1, word2, human_result, blank;
+
+    float *human = new float[346], *v2_results = new float[346];
+    double *corr = new double(0.0);
+    int index = 0;
+
+    while (!ifs.eof()) {
+        getline(ifs, word1, ',');
+        getline(ifs, word2, ',');
+        getline(ifs, human_result, ',');
+        getline(ifs, blank, '\n');
+//        printf("%s, %s, %s\n", word1.c_str(), word2.c_str(), human_result.c_str());
+        float v2_result = WordSimilarity::instance()->calc(word1, word2);
+        human[index] = (float) atof(human_result.c_str());
+        v2_results[index++] = v2_result;
+//        ofs << word1 << "," << word2 << "," << human_result << "," << v2_result << ",\n";
+    }
+    ifs.close();
+//    ofs.close();
+    CCalculate calculate;
+    calculate.GetCorrCoef(human, v2_results, 346, *corr);
+    return (float) *corr;
+}
 
 #ifdef _TEST_SIMILARITY
 
-int main(int argc, const char* argv[])
-{
-    if (argc < 3)
-    {
-        printf("usage:%s word1 word2\n", argv[0]);
-        return 1;
-    }
-
-    if (!WordSimilarity::instance()->init())
-    {
+int main(int argc, const char* argv[]) {
+    if (!WordSimilarity::instance()->init()) {
         util::log("[ERROR] init failed!!");
         return 1;
     }
-
+    if (argc < 3) {
+        printf("%f", execCsv());
+        return 1;
+    }
     printf("%s - %s : %f\n", argv[1], argv[2],
         WordSimilarity::instance()->calc(argv[1], argv[2]));
+    return 1;
 }
 
 #endif

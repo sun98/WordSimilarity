@@ -61,15 +61,6 @@ float WordSimilarity::calc(const std::string &w1, const std::string &w2) {
     if (!sw1 || !sw2 || !sw1->size() || !sw2->size())
         return -2.0;
 
-//    for (int k = 0; k < sw1->size(); ++k) {
-//        sw1->at(k)->dump();
-//    }
-
-//    for (int k = 0; k < sw2->size(); ++k) {
-//        sw2->at(k)->dump();
-//    }
-
-//    取概念相似度的最大值
     float max = 0;
     float tmp = 0;
     for (size_t i = 0; i < sw1->size(); i++) {
@@ -435,9 +426,8 @@ int WordSimilarity::calcSememeDistance(const std::string &w1, const std::string 
     std::vector<int>::iterator fatherpathpos;
     while (id2 != father2) {
         fatherpathpos = std::find(fatherpath.begin(), fatherpath.end(), id2);
-        if (fatherpathpos != fatherpath.end()) {
+        if (fatherpathpos != fatherpath.end())
             return fatherpathpos - fatherpath.begin() + len;
-        }
 
         id2 = father2;
         SememeElement *father = getSememeByID(father2);
@@ -448,33 +438,47 @@ int WordSimilarity::calcSememeDistance(const std::string &w1, const std::string 
 
     if (id2 == father2) {
         fatherpathpos = std::find(fatherpath.begin(), fatherpath.end(), id2);
-        if (fatherpathpos != fatherpath.end()) {
+        if (fatherpathpos != fatherpath.end())
             return fatherpathpos - fatherpath.begin() + len;
-        }
     }
 
     return 20;
 }
 
+void execCsv() {
+    std::ifstream ifs("./results/combined_zh.csv");
+    std::ofstream ofs("./results/combined_zh_v1.csv");
+    std::string word1, word2, human_result, blank;
+
+    while (!ifs.eof()) {
+        getline(ifs, word1, ',');
+        getline(ifs, word2, ',');
+        getline(ifs, human_result, ',');
+        getline(ifs, blank, '\n');
+//        printf("%s, %s, %s\n", word1.c_str(), word2.c_str(), human_result.c_str());
+        float v1_result = WordSimilarity::instance()->calc(word1, word2);
+        ofs << word1 << "," << word2 << "," << human_result << "," << v1_result << ",\n";
+    }
+    ifs.close();
+    ofs.close();
+}
+
 
 #ifdef _TEST_SIMILARITY
 
-int main(int argc, const char* argv[])
-{
-    if (argc < 3)
-    {
-        printf("usage:%s word1 word2\n", argv[0]);
-        return 1;
-    }
-
-    if (!WordSimilarity::instance()->init())
-    {
+int main(int argc, const char* argv[]) {
+    if (!WordSimilarity::instance()->init()) {
         util::log("[ERROR] init failed!!");
         return 1;
     }
+    if (argc < 3) {
+        execCsv();
+        return 1;
+    } else {
+        printf("[sim] %s - %s : %f\n", argv[1], argv[2],
+            WordSimilarity::instance()->calc(argv[1], argv[2]));
+    }
 
-    printf("[sim] %s - %s : %f\n", argv[1], argv[2],
-        WordSimilarity::instance()->calc(argv[1], argv[2]));
 }
 
 #endif

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ./sim 轿车 汽车
 ./sim 宝石 宝物
 ./sim 旅游 游历

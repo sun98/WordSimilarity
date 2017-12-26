@@ -28,3 +28,9 @@ v2: simv2
 
 v3: simv3
 	sh test/sim_test_miller_v3.sh
+
+csv_v1: sim
+	./sim
+
+csv_v2: simv2
+	./sim2
