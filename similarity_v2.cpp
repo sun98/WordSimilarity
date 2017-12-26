@@ -184,7 +184,9 @@ bool WordSimilarity::GlossaryElement::parse(const std::string &text) {
                 parseZhAndEn(sememes[i], &temp);
 
                 if ('(' == firstletter) {
+                    temp = temp.substr(0, temp.size() - 1);
                     this->s_other.push_back(temp);
+//                    printf("other push: %s\n", temp.c_str());
                     continue;
                 }
 
