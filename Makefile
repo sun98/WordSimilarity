@@ -12,13 +12,17 @@ sim : similarity.cpp
 simv2: similarity_v2.cpp
 	g++ similarity_v2.cpp -D _TEST_SIMILARITY -o ./sim2
 
+
 simv3: similarity_v3.cpp
 	g++ similarity_v3.cpp -D _TEST_SIMILARITY -o ./sim3
+syn_dic: syn_dic.cpp
+	g++ syn_dic.cpp -D _TEST_SYN_DIC -o ./syn_dic
 
 test : sim
 	sh test/sim_test_1.sh; \
 	sh test/sim_test_2.sh; \
-	sh test/sim_test_3.sh
+	sh test/sim_test_3.sh; \
+
 
 origin : sim
 	sh test/sim_test_miller_origin.sh
@@ -34,3 +38,5 @@ csv_v1: sim
 
 csv_v2: simv2
 	./sim2
+csv_syn_dic: syn_dic
+	./syn_dic

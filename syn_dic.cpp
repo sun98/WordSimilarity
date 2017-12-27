@@ -7,7 +7,7 @@
 #include <cctype>
 #include <cmath>
 
-#include "syndic.h"
+#include "syn_dic.h"
 #include "utility.h"
 #include "mathlib.h"
 #define  MAX 90111
@@ -178,7 +178,7 @@ bool SynDic::loadConceptTable(const char *filename){
         }
     }
     in.close();
-    printf("%d",count);
+    //printf("%d",count);
     return true;
 }
 
