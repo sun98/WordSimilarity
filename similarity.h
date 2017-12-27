@@ -1,9 +1,16 @@
+//
+// Created by 汤同辉 on 2017/12/28.
+//
+
+#ifndef SIM_V2_SIMILARITY_H
+#define SIM_V2_SIMILARITY_H
 #ifndef _SIMILARITY_H
 #define _SIMILARITY_H
 
 #include <string>
 #include <map>
 #include <vector>
+#include <math.h>
 
 ///////////////////////////////////////////////////////////////
 //
@@ -27,7 +34,7 @@ public:
     //
     // 初始化义原和词汇表
     //
-    bool init(const char *sememefile = "./hownet/WHOLE.DAT", const char *glossaryfile = "./hownet/glossary.dat");
+    bool init(const char *sememefile = "/Users/tangtonghui/Documents/project/ClionProjects/sim_v2/hownet/WHOLE.DAT", const char *glossaryfile = "/Users/tangtonghui/Documents/project/ClionProjects/sim_v2/hownet/glossary.dat");
 
     //
     // 计算两个词的语义相似度（返回值: [0, 1], -2:指定的词词典中不存在）
@@ -104,7 +111,7 @@ protected:
     int  locateSememe(SememeElement *sememe1, SememeElement *sememe2);
 
 
-  
+
 
     //
     // calcGlossarySim    - 计算词汇表中两个词的相似度
@@ -116,7 +123,7 @@ protected:
 
     float calcSememeSim(const std::string &w1, const std::string &w2);
 
-    int calcSememeDistance(const std::string &w1, const std::string &w2);
+    float calcSememeDistance(const std::string &w1, const std::string &w2);
 
     int calcSememeDepth(const std::string &w);
 
@@ -150,3 +157,5 @@ private:
 };
 
 #endif
+
+#endif //SIM_V2_SIMILARITY_H
