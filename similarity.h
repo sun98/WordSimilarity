@@ -34,7 +34,9 @@ public:
     //
     // 初始化义原和词汇表
     //
-    bool init(const char *sememefile = "/Users/tangtonghui/Documents/project/ClionProjects/sim_v2/hownet/WHOLE.DAT", const char *glossaryfile = "/Users/tangtonghui/Documents/project/ClionProjects/sim_v2/hownet/glossary.dat");
+
+//    bool init(const char *sememefile = "/Users/tangtonghui/Documents/project/ClionProjects/sim_v2/hownet/WHOLE.DAT", const char *glossaryfile = "/Users/tangtonghui/Documents/project/ClionProjects/sim_v2/hownet/glossary.dat");
+    bool init(const char *sememefile = "./hownet/WHOLE.DAT", const char *glossaryfile = "./hownet/glossary.dat");
 
     //
     // 计算两个词的语义相似度（返回值: [0, 1], -2:指定的词词典中不存在）
@@ -108,9 +110,7 @@ protected:
 
     bool updateNumofOffspring(SememeTable::iterator it);
 
-    int  locateSememe(SememeElement *sememe1, SememeElement *sememe2);
-
-
+    int locateSememe(SememeElement *sememe1, SememeElement *sememe2);
 
 
     //

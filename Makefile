@@ -38,5 +38,6 @@ csv_v1: sim
 
 csv_v2: simv2
 	./sim2
+
 csv_syn_dic: syn_dic
 	./syn_dic
