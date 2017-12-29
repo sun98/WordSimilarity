@@ -1,2 +1,31 @@
-make#!/usr/bin/env bash
-./sim2
+#!/usr/bin/env bash
+./sim2 轿车 汽车
+./sim2 宝石 宝物
+./sim2 旅游 游历
+./sim2 男孩子 小伙子
+./sim2 海岸 海滨
+./sim2 庇护所 精神病院
+./sim2 魔术师 巫师
+./sim2 中午 正午
+./sim2 火炉 炉灶
+./sim2 食物 水果
+./sim2 鸟 公鸡
+./sim2 鸟 鹤
+./sim2 工具 器械
+./sim2 兄弟 和尚
+./sim2 起重机 器械
+./sim2 小伙子 兄弟
+./sim2 旅行 轿车
+./sim2 和尚 圣贤
+./sim2 墓地 林地
+./sim2 食物 公鸡
+./sim2 海岸 丘陵
+./sim2 森林 墓地
+./sim2 岸边 林地
+./sim2 和尚 奴隶
+./sim2 海岸 森林
+./sim2 小伙子 巫师
+./sim2 琴弦 微笑
+./sim2 玻璃 魔术师
+./sim2 中午 绳子
+./sim2 公鸡 旅行

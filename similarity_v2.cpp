@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 #include <cctype>
-#include "similarity.h"
+#include "similarity_2_3.h"
 #include "utility.h"
 
 #include "mathlib.h"
@@ -60,7 +60,7 @@ bool WordSimilarity::init(const char *sememefile, const char *glossaryfile) {
     return true;
 }
 
-int WordSimilarity::getCommom(int seme_id1, int seme_id2) {
+int WordSimilarity::getCommon(int seme_id1, int seme_id2) {
     int current_father1 = seme_id1;
     int current_father2 = seme_id2;
 
@@ -538,7 +538,7 @@ float WordSimilarity::calcSememeSim(const std::string &w1, const std::string &w2
     } else {
         locateSememe(s1, s2);
         if (locateSememe(s1, s2) != -1) {
-            int fatherid = getCommom(s1->id, s2->id);
+            int fatherid = getCommon(s1->id, s2->id);
             SememeElement *fa = getSememeByID(fatherid);
             while (fa->id != fa->father) {
                 fa = getSememeByID(fa->father);

@@ -123,7 +123,7 @@ protected:
 
     float calcSememeSim(const std::string &w1, const std::string &w2);
 
-    int calcSememeDistance(const std::string &w1, const std::string &w2);
+    float calcSememeDistance(const std::string &w1, const std::string &w2);
 
     int calcSememeDepth(const std::string &w);
 
