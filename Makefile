@@ -15,6 +15,7 @@ simv2: similarity_v2.cpp
 
 simv3: similarity_v3.cpp
 	g++ similarity_v3.cpp -D _TEST_SIMILARITY -o ./sim3
+
 syn_dic: syn_dic.cpp
 	g++ syn_dic.cpp -D _TEST_SYN_DIC -o ./syn_dic
 

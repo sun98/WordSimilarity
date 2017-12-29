@@ -6,7 +6,7 @@
 #include <map>
 #include <cmath>
 #include <cctype>
-#include "similarity_2_3.h"
+#include "similarity.h"
 #include "utility.h"
 
 namespace {
