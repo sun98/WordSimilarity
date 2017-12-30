@@ -127,7 +127,7 @@ protected:
 
     int calcSememeDepth(const std::string &w);
 
-    int getCommom(int seme_id1, int seme_id2);
+    int getCommon(int seme_id1, int seme_id2);
 
     //
     // calcSememeSimFirst    - 计算第一基本义原之间的相似度

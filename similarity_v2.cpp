@@ -8,6 +8,7 @@
 #include <cctype>
 #include "similarity_2_3.h"
 #include "utility.h"
+#include "syn_dic.h"
 
 #include "mathlib.h"
 
@@ -15,12 +16,14 @@ namespace {
     //
     // 下面几个经验常量来自论文：《基于《知网》的词汇语义相似度计算》
     //
-    const float ALPHA = 1.6;//0最大
-    const float EPSILON = 2.0;
-    const float DELTA = 0.1;
-    const float GAMA = 0.2;
-    const float BETA[4] = {0.4, 0.3, 0.17, 0.13};
-    const float ZETA = 1;
+     float ALPHA = 10;//
+     float EPSILON = 0.37;
+     float DELTA = 0.1;
+     float GAMA = 0.2;
+     float BETA[4] = {0.1, 0.6, 0.17, 0.13};
+    float ZETA = 4;
+     float MU = 0.3;
+     float KAPPA=0.5;
 //    const float BETA[4] = {0.5, 0.2, 0.17, 0.13};
 
     void parseZhAndEn(const std::string &text, std::string *zh, std::string *en = NULL) {
@@ -364,15 +367,18 @@ float WordSimilarity::calcGlossarySim(GlossaryElement *w1, GlossaryElement *w2) 
     if (w1->solid != w2->solid) return 0.0;
 
     float sim1 = calcSememeSimFirst(w1, w2);
+    //printf ("%f\n",sim1);
     float sim2 = calcSememeSimOther(w1, w2);
     float sim3 = calcSememeSimRelation(w1, w2);
     float sim4 = calcSememeSimSymbol(w1, w2);
 
-    float sim = BETA[0] * sim1 +
+    float sim =BETA[0]* sim1 +
                 //                BETA[1] * sim1 * sim2 +
                 BETA[1] * sim2 +
-                BETA[2] * sim1 * sim2 * sim3 +
-                BETA[3] * sim1 * sim2 * sim3 * sim4;
+                BETA[2] *   sim2*sim3 +
+                BETA[3] *  sim2*sim4;
+                //(1-MU)*dp*sim2*sim3+
+                //(1-MU)*(1-dp)*sim2*sim3;
 
     return sim;
 }
@@ -391,7 +397,13 @@ float WordSimilarity::calcSememeSimFirst(GlossaryElement *w1, GlossaryElement *w
 
     float d = calcSememeDistance(word1, word2);
     if (d >= 0)
-        return ALPHA / (ALPHA + d);
+      //  return ALPHA / (ALPHA + d);
+        {float temp=calcSememeSim(word1,word2);
+        if (temp<0)return DELTA;
+        else
+        return temp;
+      }
+        //return calcSememeSim(word1,word2);
     else
         return -1.0;
 //    return calcSememeSim(w1->s_first, w2->s_first);
@@ -544,6 +556,7 @@ float WordSimilarity::calcSememeSim(const std::string &w1, const std::string &w2
                 fa = getSememeByID(fa->father);
                 fatherdepth++;
             }
+            fatherdepth++;
 
         }
     }
@@ -551,14 +564,37 @@ float WordSimilarity::calcSememeSim(const std::string &w1, const std::string &w2
     float depth1 = calcSememeDepth(w1), depth2 = calcSememeDepth(w2);
     if (dist >= 0 && depth1 >= 0 && depth2 >= 0) {
         float maxDepth = std::max(depth1, depth2), minDepth = std::min(depth1, depth2);
-        float lambda = maxDepth * 1.0 / (maxDepth + minDepth);
-        float temp = ALPHA * minDepth + EPSILON;
-        if (fatherdepth == 0)
-            return temp / (temp + lambda * (pow(dist, 2)));
-        else {
-            return log(fatherdepth + 132) / ZETA * temp / (temp + lambda * (pow(dist, 2)));
-            //return fatherdepth/dp / ZETA * temp / (temp + lambda * (pow(dist,2)));
-        }
+        float lambda = (maxDepth * 1.0) / (maxDepth + minDepth);
+        //float temp = ALPHA * minDepth + EPSILON;
+        //printf("%f\n",dist);
+
+        //float temp = ZETA * fatherdepth + EPSILON;
+        //printf("???");
+        //if((temp+MU) / (temp +   lambda * pow(dist, 2))>1)
+      //  {//printf("%f %f %f\n",temp,lambda,dist);
+        //return pow(temp,3)/(1.0+pow(temp,3));
+      //  }
+      if (fatherdepth==0)return 0.0;
+      else{
+          //return (temp) / (temp+MU +   lambda * pow(dist, 2));
+          float result1=(log(fatherdepth+ZETA)/(log(fatherdepth+ZETA)+MU));
+          float result2=lambda * (pow(dist, 1)+KAPPA);
+          //printf("%f %f\n",result1,result2);
+        return  (1/result2)*result1;
+      }
+
+
+
+
+        // if (fatherdepth == 0)
+        // {//printf("%f %f %f \n",lambda,maxDepth,minDepth);
+        //     return temp / (temp + lambda * (pow(dist, 2)));}
+        // else {
+        //   //if ((MU *fatherdepth+ ZETA * temp) / (MU *fatherdepth + temp + lambda * (pow(dist, 2)))>10)
+        //   //printf("%f %f %d \n",lambda,temp,fatherdepth);
+        //     return  (MU *fatherdepth+   temp) / (MU *fatherdepth +  temp + lambda * (pow(dist, 2)));
+        //     //return fatherdepth/dp / ZETA * temp / (temp + lambda * (pow(dist,2)));
+        // }
     } else
         return -1.0;
 }
@@ -577,6 +613,7 @@ int WordSimilarity::calcSememeDepth(const std::string &w) {
         }
         depth++;
     }
+    depth++;
     return depth;
 }
 
@@ -616,9 +653,9 @@ float WordSimilarity::calcSememeDistance(const std::string &w1, const std::strin
             std::vector<int>::iterator count;
 
             for (count = fatherpath.begin(); count != fatherpathpos; count++)
-                cur_len += 0.37 * log(getSememeByID(getSememeByID(*count)->father)->num_of_offspring);
+                cur_len += EPSILON * log(getSememeByID(getSememeByID(*count)->father)->num_of_offspring+ALPHA);
 
-            //cur_len+=0.66*log(1.43+getSememeByID(*count)->num_of_offspring);
+            //cur_len+=MU*log(1.43+getSememeByID(*count)->num_of_offspring);
 
 
             return cur_len + len;
@@ -628,8 +665,8 @@ float WordSimilarity::calcSememeDistance(const std::string &w1, const std::strin
         SememeElement *father = getSememeByID(father2);
         if (father)
             father2 = father->father;
-        len += 0.37 * log(getSememeByID(father2)->num_of_offspring);
-        //len+=0.66*log(1.43+father->num_of_offspring);
+        len += EPSILON * log(getSememeByID(father2)->num_of_offspring+ALPHA);
+        //len+=MU*log(1.43+father->num_of_offspring);
     }
 
     if (id2 == father2) {
@@ -638,13 +675,13 @@ float WordSimilarity::calcSememeDistance(const std::string &w1, const std::strin
             std::vector<int>::iterator count;
 
             for (count = fatherpath.begin(); count != fatherpathpos; count++)
-                cur_len += 0.37 * log(getSememeByID(getSememeByID(*count)->father)->num_of_offspring);
-            //cur_len+=0.66*log(1.43+getSememeByID(*count)->num_of_offspring);
+                cur_len += EPSILON * log(getSememeByID(getSememeByID(*count)->father)->num_of_offspring+ALPHA);
+            //cur_len+=MU*log(1.43+getSememeByID(*count)->num_of_offspring);
             return cur_len + len;
         }
     }
 
-    return 20.0;
+    return 100.0;
 }
 
 float execCsv() {
@@ -663,8 +700,11 @@ float execCsv() {
         getline(ifs, blank, '\n');
 //        printf("%s, %s, %s\n", word1.c_str(), word2.c_str(), human_result.c_str());
         float v2_result = WordSimilarity::instance()->calc(word1, word2);
+        //float v3_result = SynDic::instance()->calc(word1, word2);
+        //v2_result=v2_result*MU+(1-MU)*v3_result;
+
         human[index] = (float) atof(human_result.c_str());
-        v2_results[index++] = v2_result;
+        v2_results[index++] = v2_result/10;
 //        ofs << word1 << "," << word2 << "," << human_result << "," << v2_result << ",\n";
     }
     ifs.close();
@@ -681,9 +721,15 @@ int main(int argc, const char* argv[]) {
         util::log("[ERROR] init failed!!");
         return 1;
     }
+  //  SynDic::instance()->init();
 
     if (argc < 3) {
-        printf("%f", execCsv());
+      //for (MU=0.1; MU<=0.9;MU+=0.02)
+
+        {
+          printf("%f\n",execCsv());
+
+      }
         return 1;
     }
     printf("%s - %s : %f\n", argv[1], argv[2],
