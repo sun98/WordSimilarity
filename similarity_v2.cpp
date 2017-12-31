@@ -23,7 +23,7 @@ namespace {
      float BETA[4] = {0.1, 0.6, 0.17, 0.13};
     float ZETA = 4;
      float MU = 0.3;
-     float KAPPA=0.5;
+     float KAPPA=1.0;
 //    const float BETA[4] = {0.5, 0.2, 0.17, 0.13};
 
     void parseZhAndEn(const std::string &text, std::string *zh, std::string *en = NULL) {
@@ -101,7 +101,9 @@ float WordSimilarity::calc(const std::string &w1, const std::string &w2) {
     GlossaryElements *sw2 = getGlossary(w2);
 
     if (!sw1 || !sw2 || !sw1->size() || !sw2->size())
+    {printf("%s %s??\n",w1.c_str(),w2.c_str() );
         return -2.0;
+      }
 
 
 //    for (int k = 0; k < sw1->size(); ++k) {
@@ -578,7 +580,7 @@ float WordSimilarity::calcSememeSim(const std::string &w1, const std::string &w2
       else{
           //return (temp) / (temp+MU +   lambda * pow(dist, 2));
           float result1=(log(fatherdepth+ZETA)/(log(fatherdepth+ZETA)+MU));
-          float result2=lambda * (pow(dist, 1)+KAPPA);
+          float result2=2*lambda * (pow(dist, 1)+KAPPA);
           //printf("%f %f\n",result1,result2);
         return  (1/result2)*result1;
       }

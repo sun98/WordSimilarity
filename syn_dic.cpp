@@ -197,7 +197,7 @@ SynDic::ConceptElement *SynDic::getConceptByZh(const std::string &concept) {
 }
 
 float execCsv() {
-    std::ifstream ifs("./results/combined_zh.csv");
+    std::ifstream ifs("./results/combined_zh_cilin.csv");
     std::ofstream ofs("./results/combined_zh_syn.csv");
     std::string word1, word2, human_result, blank;
 
