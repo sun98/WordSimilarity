@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 #include <cctype>
-#include "similarity_2_3.h"
+#include "similarity_2.h"
 #include "utility.h"
 #include "syn_dic.h"
 

@@ -1,0 +1,5 @@
+Tested on:
+Ubuntu 1604 LTS;
+Mac OSX;
+
+gcc version 4.9.3 (Ubuntu 4.9.3-13ubuntu2)
